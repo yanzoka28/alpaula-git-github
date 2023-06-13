@@ -1,32 +1,24 @@
 import openai
 
 def menu():
-    print('1 - Alterar Dados.')
-    print('2 - Cadastrar produto.')
-    print('3 - Buscar produto.')
-    print('4 - Remover produto.')
-    print('5 - Atualizar produto.')
-    print('6 - Gerar Grafico.')
-    print('7 - Gerar arquivo txt dos produtos')
-    print('0 - Sair.')
+    print('Digite 0 - Deslogar')
+    print('Digite 1 - Alterar Dados')
+    print('Digite 2 - Buscar produto por nome ou descricao')
+    print('Digite 3 - Produtos comprados')
+    print('Digite 4 - Ver descricao do produto feita pelo chatgpt')
 
     print(53 * '=')
     opcao = input('Digite a opcao desejada: ')
     print(53 * '=')
 
     return opcao
-
 def alterar_dados (login, clientes:dict):
     while True:
         print('Digite 0 para sair')
         print('Digite 1 para alterar nome')
         print('Digite 2 para alterar email')
         print('Digite 3 para alterar senha')
-
-        print(53 * '=')
         op_alterar_dados = input('Digite a opcao: ')
-        print(53 * '=')
-
         if op_alterar_dados == '0':
             break
         elif op_alterar_dados == '1':
@@ -59,15 +51,12 @@ def alterar_dados (login, clientes:dict):
             clientes[login][1] = nova_senha
         else:
             print('Opcao Invalida')
-
 def buscar_produto (login,produtos:dict,compras:dict):
     busca_produto = input('Digite o nome para buscar o produto: ')
     buscado = False
     for produto in produtos.values():
         if produto[1].find(busca_produto) >= 0 or produto[6].find(busca_produto) >= 0:
             buscado = True
-
-            print(53 * '=')
             print(f'Id: {produto[7]}')
             print(f'Nome do produto: {produto[1]}')
             print(f'Estoque: {produto[2]}')
@@ -75,41 +64,35 @@ def buscar_produto (login,produtos:dict,compras:dict):
             print(f'Validade: {produto[4]}')
             print(f'Preco: R${produto[5]}')
             print(f'Descricao: {produto[6]}\n')
-            print(53 * '=')
-
     if not buscado:
         print('\033[0;30;41m Produto nao encontrado. \033[m')
     else:
         while True:
             print('Digite 0 - sair')
             print('Digite 1 - comprar um produto')
-
             opcao_venda = input('Digite a opcao desejada: ')
-
             if (opcao_venda == '0'):
                 break
             if opcao_venda == '1':
-                
                 id_procurado = int(input('Digite o codigo do produto desejado: '))
                 achado = False
                 for produto in produtos.values():
                     if produto[7] == id_procurado:
                         achado = True
                         quantidade_comprada = int(input('Digite a quantidade q voce deseja comprar: '))
-                        if produto[2] <= quantidade_comprada:
-                            print(f'Quantidade desejada para comprar:{quantidade_comprada} deve ser menor ou igual ao estoque: {produto[2]}')
+                        if produto[2] < quantidade_comprada:
+                            print(
+                                f'quantidade desejada para comprar:{quantidade_comprada} deve ser menor ou igual ao estoque: {produto[2]}')
                         else:
                             valor = produto[5] * quantidade_comprada
-                            print(f'Preco total da quantidade desejada:R${valor}')
+                            print(f'preco total da quantidade desejada:R${valor}')
                             pago = float(input('Digite o Valor pago: '))
-
                             if valor > pago:
                                 print(f'Valor pago: R${pago} deve ser maior ou igual ao preço do produto: R${valor}')
                             else:
                                 troco = pago - valor
                                 if troco > 0:
                                     print(f'Seu troco: R${troco}')
-
                                 produto[2] -= quantidade_comprada
                                 ja_comprado = False
                                 for compra in compras.values():
@@ -121,14 +104,14 @@ def buscar_produto (login,produtos:dict,compras:dict):
                                             break
                                 if not ja_comprado:
                                     lista_compras = []
-                                    lista_compras.append(produto[1])  
-                                    lista_compras.append(quantidade_comprada)  
-                                    lista_compras.append(valor)  
-                                    lista_compras.append(login)  
+                                    lista_compras.append(produto[1])  # 0
+                                    lista_compras.append(quantidade_comprada)  # 1
+                                    lista_compras.append(valor)  # 2
+                                    lista_compras.append(login)  # 3
                                     compras[produto[1]] = lista_compras
                                     break
                 if not achado:
-                    print('\033[0;30;41m Produto não encontrado. \033[m')
+                    print('Produto não encontrado')
             else:
                 print('Opcao Invalida')
 def compras_feitas (login,compras:dict):
@@ -136,15 +119,12 @@ def compras_feitas (login,compras:dict):
     for compra in compras.values():
         if compra[3] == login:
             compra_feita = True
-            print(53 * '=')
             print(f'Produto comprado: {compra[0]}')
             print(f'Quantidade comprada: {compra[1]}')
             print(f'Valor Gasto total: {compra[2]}')
-            print(53 * '=')
-
     if not compra_feita:
-        print('\033[0;30;41m Nenhuma compra feita. \033[m')
-
+        print('Nenhuma compra feita')
+import openai
 def consultarchatgpt(nome_produto):
     openai.api_key = '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'
 
@@ -167,7 +147,9 @@ def consultarchatgpt(nome_produto):
 
     # Print the response
     return completion.choices[0].text
+
 import menu_cliente
+
 def gpt_consulta (produtos:dict):
     busca_produto = input('Nome do produto: ')
     buscado = False
@@ -179,7 +161,7 @@ def gpt_consulta (produtos:dict):
     if not buscado:
         print('\033[0;30;41m Produto nao encontrado. \033[m')
     else:
-        codigo_buscado = int(input('Digite o codigo do produto q voce deseja ver decricao: '))
+        codigo_buscado = int(input('Digite o codigo do produto q vc deseja ver decricao: '))
         for produto in produtos.values():
             if produto[7] == codigo_buscado:
                 produto_nome = produto[1]
